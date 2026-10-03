@@ -5,7 +5,16 @@
 const path = require("path");
 const fs = require("fs");
 const { spawnSync } = require("child_process");
-const ResEdit = require("resedit");
+
+/** @type {typeof import("resedit") | null} */
+let ResEdit = null;
+
+async function loadResEdit() {
+  if (!ResEdit) {
+    ResEdit = await import("resedit");
+  }
+  return ResEdit;
+}
 
 const exe = path.join(__dirname, "..", "dist-bin", "DotaSpawnAlarm.exe");
 const backup = `${exe}.preicon`;
@@ -36,24 +45,25 @@ function smokeOk(target) {
 /** IMAGE_SUBSYSTEM_WINDOWS_GUI — no console window when launching the EXE. */
 const WINDOWS_GUI = 2;
 
-function applyWithResedit(icoPath) {
+async function applyWithResedit(icoPath) {
+  const RE = await loadResEdit();
   const exeBuf = fs.readFileSync(exe);
-  const iconFile = ResEdit.Data.IconFile.from(fs.readFileSync(icoPath));
-  const exeFile = ResEdit.NtExecutable.from(exeBuf, { ignoreCert: true });
+  const iconFile = RE.Data.IconFile.from(fs.readFileSync(icoPath));
+  const exeFile = RE.NtExecutable.from(exeBuf, { ignoreCert: true });
   // Hide the black terminal that pkg console builds otherwise show.
   exeFile.newHeader.optionalHeader.subsystem = WINDOWS_GUI;
-  const res = ResEdit.NtExecutableResource.from(exeFile);
-  const groups = ResEdit.Resource.IconGroupEntry.fromEntries(res.entries);
+  const res = RE.NtExecutableResource.from(exeFile);
+  const groups = RE.Resource.IconGroupEntry.fromEntries(res.entries);
   const id = groups[0]?.id ?? 1;
   const lang = groups[0]?.lang ?? 1033;
-  ResEdit.Resource.IconGroupEntry.replaceIconsForResource(
+  RE.Resource.IconGroupEntry.replaceIconsForResource(
     res.entries,
     id,
     lang,
     iconFile.icons.map((item) => item.data),
   );
 
-  const versions = ResEdit.Resource.VersionInfo.fromEntries(res.entries);
+  const versions = RE.Resource.VersionInfo.fromEntries(res.entries);
   if (versions[0]) {
     const vi = versions[0];
     vi.setFileVersion(1, 0, 0, 0, 1033);
@@ -93,9 +103,10 @@ async function applyWithRcedit(icoPath) {
   });
 }
 
-function applyGuiSubsystemOnly() {
+async function applyGuiSubsystemOnly() {
+  const RE = await loadResEdit();
   const exeBuf = fs.readFileSync(exe);
-  const exeFile = ResEdit.NtExecutable.from(exeBuf, { ignoreCert: true });
+  const exeFile = RE.NtExecutable.from(exeBuf, { ignoreCert: true });
   exeFile.newHeader.optionalHeader.subsystem = WINDOWS_GUI;
   fs.writeFileSync(exe, Buffer.from(exeFile.generate()));
 }
@@ -112,8 +123,8 @@ async function main() {
 
   if (ico) {
     const attempts = [
-      ["resedit", () => applyWithResedit(ico)],
-      ["rcedit", () => applyWithRcedit(ico)],
+      ["resedit", async () => applyWithResedit(ico)],
+      ["rcedit", async () => applyWithRcedit(ico)],
     ];
 
     for (const [name, run] of attempts) {
@@ -140,7 +151,7 @@ async function main() {
   }
 
   try {
-    applyGuiSubsystemOnly();
+    await applyGuiSubsystemOnly();
     if (!smokeOk(exe)) {
       throw new Error("EXE failed smoke check after GUI subsystem patch");
     }
