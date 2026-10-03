@@ -1,0 +1,38 @@
+{
+  "name": "dota-spawn-alarm",
+  "version": "1.0.0",
+  "description": "Dota Spawn Alarm — live match HUD and Chrome alerts for runes, lotus, wisdom, and tormentor via Game State Integration.",
+  "main": "dist/server.js",
+  "bin": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "ts-node src/server.ts",
+    "pkg:win": "npm run build && pkg . --targets node18-win-x64 --output dist-bin/DotaSpawnAlarm.exe && node scripts/set-exe-icon.js",
+    "pkg:win:safe": "npm run build && pkg . --targets node18-win-x64 --output dist-bin/DotaSpawnAlarm.exe"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ],
+    "outputPath": "dist-bin"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.9",
+    "@types/ws": "^8.5.10",
+    "pkg": "^5.8.1",
+    "png-to-ico": "^3.0.2",
+    "rcedit": "^5.0.2",
+    "resedit": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  }
+}

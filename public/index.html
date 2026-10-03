@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#070b10" />
+  <title>Dota Spawn Alarm</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="/icon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/icon-512.png" />
+  <link rel="stylesheet" href="/dashboard.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="header">
+      <div class="header-left">
+        <div class="mark" aria-hidden="true">
+          <img src="/icon-64.png" width="20" height="20" alt="" />
+        </div>
+        <div>
+          <div class="row-inline">
+            <div class="brand">DOTA SPAWN ALARM</div>
+            <span id="gsiBadge" class="badge warn">SYNCING</span>
+          </div>
+          <div class="meta">
+            <span id="statusDot" class="dot warn"></span>
+            <span id="latency" class="mono">—</span>
+            <span>·</span>
+            <span class="mono">Gaming PC 127.0.0.1</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="muteBtn" class="icon-btn" type="button" aria-label="Mute alert sounds">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7"/>
+          </svg>
+        </button>
+        <button id="settingsBtn" class="icon-btn gear" type="button" aria-label="Open settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 01-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.2a1.7 1.7 0 00-1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 01-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.2a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 012.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.2a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 012.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9c.3.7.9 1.2 1.5 1.2H21a2 2 0 010 4h-.2a1.7 1.7 0 00-1.4.8z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <section id="notifyBanner" class="notify-banner">
+      <div>
+        <h2 id="notifyTitle">Chrome match alerts</h2>
+        <p id="notifyHint">Chrome will notify you for runes, lotus, wisdom, and tormentor — no phone app needed. Keep this tab open (background is fine).</p>
+      </div>
+      <button id="notifyBtn" type="button">ENABLE</button>
+    </section>
+
+    <div id="waiting" class="waiting">
+      <div id="waitingIcon" class="waiting-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="6" width="20" height="12" rx="2"/>
+          <path d="M6 12h4M14 10h4M14 14h3"/>
+        </svg>
+      </div>
+      <h2 id="waitingTitle">Connecting to relay</h2>
+      <p id="waitingDetail">Reaching 127.0.0.1 on port 3500…</p>
+      <ul class="wait-steps">
+        <li id="stepRelay" class="wait-step warn">Relay</li>
+        <li id="stepDota" class="wait-step">Dota 2</li>
+        <li id="stepMatch" class="wait-step">Live match</li>
+      </ul>
+    </div>
+
+    <div id="live" class="live-only idle">
+      <div id="pauseBanner" class="pause-banner hidden">PAUSE</div>
+      <div id="endedBanner" class="ended-banner hidden">
+        <div class="kicker">MATCH ENDED</div>
+        <div id="winnerLabel" class="winner"></div>
+      </div>
+      <div id="alerts"></div>
+
+      <div class="layout">
+        <section id="paneMatch" class="pane active">
+          <div class="scoreboard">
+            <div class="score-cell radiant">
+              <div class="score-label"><span class="dot ok"></span>RADIANT</div>
+              <div id="radiantScore" class="score-num radiant mono">0</div>
+            </div>
+            <div class="score-cell clock">
+              <div id="clockLabel" class="score-label clock-label day">DAY CYCLE</div>
+              <div id="clockValue" class="score-num mono">--:--</div>
+            </div>
+            <div class="score-cell dire">
+              <div class="score-label">DIRE<span class="dot" style="background:#f07178"></span></div>
+              <div id="direScore" class="score-num dire mono">0</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="hero-top">
+              <div class="portrait">
+                <img id="heroImg" alt="" />
+                <div id="heroLvl" class="lvl mono">LVL —</div>
+              </div>
+              <div class="hero-id">
+                <h2 id="heroName">UNKNOWN HERO</h2>
+                <div class="pills">
+                  <span class="pill"><span class="mini"></span>CORE</span>
+                  <span id="heroTeam" class="team-radiant">RADIANT</span>
+                  <span id="liveTag" class="live-tag">LIVE</span>
+                </div>
+                <div class="rates">
+                  <span class="gpm mono"><span id="gpm">—</span> <span>GPM</span></span>
+                  <span class="xpm mono"><span id="xpm">—</span> <span>XPM</span></span>
+                </div>
+              </div>
+              <div class="hero-side">
+                <div class="gold-box">
+                  <div id="goldAmt" class="amt mono">—g</div>
+                  <div class="lbl">NET WORTH</div>
+                </div>
+                <div id="alivePill" class="alive-pill on">ALIVE</div>
+              </div>
+            </div>
+
+            <div class="stat-grid">
+              <div class="stat-card">
+                <div>
+                  <div class="lbl">K / D / A</div>
+                  <div class="kda mono">
+                    <span id="kills" class="k">0</span><span class="slash">/</span>
+                    <span id="deaths" class="d">0</span><span class="slash">/</span>
+                    <span id="assists" class="a">0</span>
+                  </div>
+                </div>
+                <div class="impact">
+                  <div id="impactN" class="n mono">0.0</div>
+                  <div id="impactS" class="s">LOW</div>
+                  <div class="s" style="color:#71717a">IMPACT</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div>
+                  <div class="lbl">CREEP STATS</div>
+                  <div class="kda">
+                    <span id="lastHits" class="lh mono">0</span>
+                    <span class="unit">LH</span>
+                    <span class="slash">/</span>
+                    <span id="denies" class="dn mono">0</span>
+                    <span class="unit">DN</span>
+                  </div>
+                </div>
+                <div class="farm-box">
+                  <div id="farmRate" class="n mono">—/m</div>
+                  <div class="s" style="color:#a1a1aa">FARM</div>
+                  <div class="s" style="color:#52525b">RATE</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="bars">
+              <div>
+                <div class="bar-head hp">
+                  <span id="hpLabel">HP: — / —</span>
+                  <span id="hpPct" class="mono">0%</span>
+                </div>
+                <div class="track hp"><div id="hpSeg" class="seg"></div></div>
+              </div>
+              <div>
+                <div class="bar-head mp">
+                  <span id="mpLabel">MANA: — / —</span>
+                  <span id="mpPct" class="mono">0%</span>
+                </div>
+                <div class="track mp"><div id="mpFill" class="fill" style="width:0%"></div></div>
+              </div>
+            </div>
+
+            <div class="items-label">ITEMS</div>
+            <div class="inv">
+              <div class="inv-main">
+                <div id="invTop" class="inv-row"></div>
+                <div id="invBottom" class="inv-row"></div>
+              </div>
+              <div id="invSide" class="side-slots"></div>
+            </div>
+            <div id="backpack" class="backpack hidden"></div>
+          </div>
+        </section>
+
+        <section id="paneTimers" class="pane">
+          <div class="timers-head">
+            <div>
+              <div class="kicker">OBJECTIVE CYCLES</div>
+              <h2>Spawn timers</h2>
+            </div>
+            <div style="text-align:right">
+              <div class="kicker">GAME CLOCK</div>
+              <div id="timerClock" class="mono" style="font-size:20px;font-weight:700">--:--</div>
+            </div>
+          </div>
+          <p class="hint">Set how many seconds before each spawn you want a Chrome warning. Type a number (e.g. 6) or use +/−. 0 turns that alert off. Phone app is not required.</p>
+          <div id="timerCards"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabbar" aria-label="Match sections">
+    <button id="tabMatch" class="tab active" type="button">MATCH</button>
+    <button id="tabTimers" class="tab" type="button">
+      TIMERS <span id="timerBadge" class="tab-badge hidden">0</span>
+    </button>
+  </nav>
+
+  <div id="settings" class="settings-overlay" role="dialog" aria-label="Settings">
+    <div class="settings-panel">
+      <div class="header">
+        <button id="settingsClose" class="icon-btn" type="button" aria-label="Close settings">←</button>
+        <div>
+          <h2>SETTINGS</h2>
+          <div class="sub">Chrome alerts, sound, and timer defaults</div>
+        </div>
+      </div>
+      <div class="toggle">
+        <div>
+          <div class="t">Mute all sounds</div>
+          <div class="h">Chrome toasts still appear unless you turn notifications off in Chrome</div>
+        </div>
+        <button id="setMuted" class="switch" type="button" aria-label="Mute all sounds"><i></i></button>
+      </div>
+      <div class="toggle">
+        <div>
+          <div class="t">Sound on warning</div>
+          <div class="h">Play sound when an objective is about to spawn</div>
+        </div>
+        <button id="setWarnSound" class="switch" type="button" aria-label="Sound on warning"><i></i></button>
+      </div>
+      <div class="toggle">
+        <div>
+          <div class="t">Sound on spawn</div>
+          <div class="h">Play sound when the window is NOW</div>
+        </div>
+        <button id="setSpawnSound" class="switch on" type="button" aria-label="Sound on spawn"><i></i></button>
+      </div>
+      <div class="sound-section">
+        <div class="sound-section-title">Alert sounds</div>
+        <div class="sound-section-hint">Each alert has its own built-in tone. Preview, or replace with your own file (mp3 / wav / ogg · max 2 MB).</div>
+        <div id="soundSlots"></div>
+      </div>
+      <div class="toggle">
+        <div>
+          <div class="t">Reset warning times</div>
+          <div class="h">All alerts off (0s). Use + on each timer to enable.</div>
+        </div>
+        <button id="resetWarn" type="button" class="claim-btn on">RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/companion.js?v=10"></script>
+</body>
+</html>
