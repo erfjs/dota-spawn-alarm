@@ -23,7 +23,7 @@ Run a small local app on your Windows PC. Dota 2 streams match state to it. A co
 
 ## Download (Windows)
 
-1. Open the latest **[GitHub Release](https://github.com/erfjs/dota2-gsi-relay/releases/latest)**
+1. Open the latest **[GitHub Release](https://github.com/erfjs/dota-spawn-alarm/releases/latest)**
 2. Download `DotaSpawnAlarm.exe`
 3. Run it (Windows SmartScreen may warn on unsigned apps — choose **More info → Run anyway**)
 4. On first launch the app will:
@@ -112,8 +112,8 @@ Chrome notifications require allowing notifications for the dashboard page once.
 ### Install & run
 
 ```bash
-git clone https://github.com/erfjs/dota2-gsi-relay.git
-cd dota2-gsi-relay
+git clone https://github.com/erfjs/dota-spawn-alarm.git
+cd dota-spawn-alarm
 npm install
 npm run dev
 ```
