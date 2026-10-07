@@ -1,5 +1,9 @@
 # Dota Spawn Alarm
 
+<p align="center">
+  <img src="docs/hero.jpg" alt="Dota Spawn Alarm — automatic jungle creep stacking and pulling notifier" width="900">
+</p>
+
 **Live spawn timers and match HUD for Dota 2** — powered by Valve’s official [Game State Integration (GSI)](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration).
 
 Run a small local app on your Windows PC. Dota 2 streams match state to it. A companion dashboard (Chrome or phone browser) shows spawn countdowns, plays alerts, and mirrors your live HUD — fully offline, no account, no cloud.
@@ -18,6 +22,14 @@ Run a small local app on your Windows PC. Dota 2 streams match state to it. A co
 | **Tray + autostart** | Runs quietly in the system tray; starts with Windows |
 | **LAN-aware** | Advertises over local Wi‑Fi/Ethernet; ignores VPN adapters so your phone gets the right IP |
 | **Privacy-first** | All data stays on your machine — nothing is sent to the internet |
+
+---
+
+## Screenshots
+
+| Match HUD | Spawn timers | Settings |
+|:---------:|:------------:|:--------:|
+| <img src="docs/screenshot-match.png" alt="Live match HUD with hero stats, HP, mana, and items" width="280"> | <img src="docs/screenshot-timers.png" alt="Spawn timers for power rune, wisdom rune, lotus pool, and camp stack" width="280"> | <img src="docs/screenshot-settings.png" alt="Settings for Chrome alerts, sounds, and per-objective warning times" width="280"> |
 
 ---
 
@@ -184,6 +196,9 @@ Upload that file to a **GitHub Release** so users can download it without instal
 │   └── manifest.json
 ├── scripts/
 │   └── set-exe-icon.js    Post-process EXE icon
+├── docs/
+│   ├── hero.jpg               README banner
+│   └── screenshot-*.png       Dashboard screenshots
 ├── gamestate_integration_spawn_alarm.cfg
 ├── package.json
 └── tsconfig.json
